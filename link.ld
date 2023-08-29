@@ -2,8 +2,7 @@ SECTIONS {
   .text : {
     *(.text)
   }
-  .raw_data : {
-    . = 510;
+  .raw_data : AT(510) {
     SHORT(0xaa55);
   }
 }

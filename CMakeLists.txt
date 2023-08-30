@@ -8,6 +8,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
+# Remove -g from the compiler flags so that useless debug information isn't generated.
+set(CMAKE_ASM_FLAGS_DEBUG "" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "" CACHE STRING "" FORCE)
+
 include(JoyOsSetupCompilerWarnings)
 
 set(
@@ -30,7 +35,6 @@ add_compile_options(
 add_link_options(
   "${JOYOS_COMPILE_AND_LINK_OPTIONS}"
   LINKER:--oformat=binary
-  LINKER:-M
   "LINKER:SHELL:-T ${CMAKE_CURRENT_LIST_DIR}/link.ld"
 )
 

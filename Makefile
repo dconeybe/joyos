@@ -1,2 +1,2 @@
-boot: boot.cc link.ld
-	g++ boot.cc -o boot -fno-exceptions -fno-rtti -T link.ld -Wl,--entry=main -Wl,--oformat=binary -nostartfiles -nostdlib
+boot: boot.S link.ld
+	g++ boot.S -o boot -fno-exceptions -fno-rtti -T link.ld -Wl,--oformat=binary -nostartfiles -nostdlib

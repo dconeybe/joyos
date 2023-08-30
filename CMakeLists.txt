@@ -35,6 +35,7 @@ add_link_options(
 add_executable(
   boot
   main.S
+  print_char.S
   print_string.S
   boot.cc
 )

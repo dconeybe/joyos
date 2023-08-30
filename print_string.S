@@ -1,8 +1,8 @@
 .text
 .code16
 
-.global print_string
-print_string:
+.global joyos_print_string_asm
+joyos_print_string_asm:
 
 movw %ax, %bx
 addw $0x7c00, %bx
@@ -11,7 +11,7 @@ addw $0x7c00, %bx
 movb (%bx), %al
 cmpb $0, %al
 je 1f
-call print_char
+call joyos_print_char_asm
 addw $1, %bx
 jmp 1b
 1:

@@ -43,5 +43,4 @@ add_executable(
   main.S
   print_char.S
   print_string.S
-  boot.cc
 )

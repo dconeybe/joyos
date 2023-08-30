@@ -20,6 +20,7 @@ set(
   -m16
   -march=i386
   -fno-pie
+  -fno-asynchronous-unwind-tables
 )
 
 add_compile_options(
@@ -29,6 +30,7 @@ add_compile_options(
 add_link_options(
   "${JOYOS_COMPILE_AND_LINK_OPTIONS}"
   LINKER:--oformat=binary
+  LINKER:-M
   "LINKER:SHELL:-T ${CMAKE_CURRENT_LIST_DIR}/link.ld"
 )
 

@@ -1,6 +1,11 @@
 .text
 .code16
 
+/**
+ * Print a null-terminated string using the BIOS.
+ * The %ax register must be populated with the address of the string.
+ * The %ax and %bx registers are clobbered.
+ */
 .global joyos_print_string_asm
 joyos_print_string_asm:
 

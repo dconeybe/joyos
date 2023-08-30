@@ -8,6 +8,7 @@ movw $42f, %ax
 call joyos_print_string_asm
 movw $43f, %ax
 call joyos_print_string_asm
+call joyos_boot
 jmp .
 
 42: .asciz "Hello World!"

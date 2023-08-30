@@ -2,22 +2,18 @@
 .code16
 
 movb $0x0e, %ah
-
-movb $0x48, %al
-int $0x10
-movb $0x65, %al
-int $0x10
-movb $0x6c, %al
-int $0x10
-movb $0x6c, %al
-int $0x10
-movb $0x6f, %al
-int $0x10
-
 movw $0x7c00, %bx
-movb X(%bx), %al
-int $0x10
+movw $0, %si
 
+1:
+movb message(%bx, %si, 1), %al
+cmpb $0, %al
+je 1f
+int $0x10
+addw $1, %si
+jmp 1b
+
+1:
 jmp .
 
-X: .byte 0x58
+message: .asciz "Hello World!"

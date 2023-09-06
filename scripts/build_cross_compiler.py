@@ -4,6 +4,8 @@ from collections.abc import Sequence
 import dataclasses
 import hashlib
 import pathlib
+import subprocess
+import shutil
 import tarfile
 from typing import Optional, TypedDict
 import urllib.parse
@@ -158,15 +160,44 @@ class CrossCompilerBuilder:
   def _build_binutils(self) -> None:
     file_download_info = self._file_download_infos()["binutils"]
     binutils_archive_file = self._downloaded_file_by_id["binutils"]
-    self._extract_archive(
+    src_dir = self._extract_archive(
         archive_file=binutils_archive_file,
         dest_dir=self.effective_build_dir(),
         file_download_info=file_download_info,
     )
 
+    build_dir = self.effective_build_dir() / "binutils-build"
+    if build_dir.exists():
+      logging.info("Deleting existing build directory: %s", build_dir)
+      shutil.rmtree(build_dir)
+
+    logging.info("Creating build directory: %s", build_dir)
+    build_dir.mkdir(parents=True)
+
+    configure_args = [
+        f"{src_dir}/configure",
+        "--target=i686-elf",
+        f"--prefix={self.dest_dir}",
+        "--with-sysroot",
+        "--disable-nls",
+        "--disable-werror",
+        "--enable-gprofng=no",
+    ]
+    logging.info(
+        "Running command in directory %s: %s", build_dir, subprocess.list2cmdline(configure_args)
+    )
+    subprocess.run(configure_args, cwd=build_dir)
+    logging.info("Running command in directory %s: make", build_dir)
+    subprocess.run(["make"], cwd=build_dir)
+    logging.info("Running command in directory %s: make install", build_dir)
+    subprocess.run(["make", "install"], cwd=build_dir)
+
   def _extract_archive(
-      self, archive_file: pathlib.Path, dest_dir: pathlib.Path, file_download_info: FileDownloadInfo
-  ) -> None:
+      self,
+      archive_file: pathlib.Path,
+      dest_dir: pathlib.Path,
+      file_download_info: FileDownloadInfo,
+  ) -> pathlib.Path:
     extracted_subdir = dest_dir / file_download_info.extracted_subdir_name
     stamp_file = dest_dir / f"{file_download_info.extracted_subdir_name}.extract.stamp.txt"
 
@@ -175,8 +206,9 @@ class CrossCompilerBuilder:
         stamp_file_bytes = f.read(4 * len(file_download_info.sha512_hexdigest))
     except IOError as e:
       logging.debug(
-          "Error reading stamp file %s; deleting the directory and re-extracting %s",
+          "Error reading stamp file %s (%s); deleting the directory and re-extracting %s",
           stamp_file,
+          e,
           archive_file,
       )
     else:
@@ -186,7 +218,7 @@ class CrossCompilerBuilder:
             archive_file,
             dest_dir,
         )
-        return
+        return extracted_subdir
 
     logging.info("Extracting %s to %s", archive_file, dest_dir)
     with tarfile.open(archive_file, "r") as f:
@@ -202,6 +234,8 @@ class CrossCompilerBuilder:
       )
 
     stamp_file.write_bytes(file_download_info.sha512_hexdigest.encode("utf8"))
+
+    return extracted_subdir
 
   def _file_download_infos(self) -> FileDownloadInfos:
     return {
